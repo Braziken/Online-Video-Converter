@@ -1,0 +1,110 @@
+﻿@model ConvertViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3 class="text-center text-gunmetal">File conversion <small class="text-warning">(1GB limit)</small></h3>
+<hr />
+<div class="row">
+    @using (Html.BeginForm("Convert", "Home", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal col-lg-offset-3 col-md-offset-3 col-sm-offset-2 col-xs-offset-1 col-md-6 col-lg-6 col-sm-8 col-xs-10" }))
+    {
+        <div class="form-group">
+            <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                <button type="button" class="btn btn-info btn-block form-control" id="chooseFile">Choose file</button>
+                <input type="file" name="inputFile" id="uploadFile" class="hidden" />
+                <input type="text" name="outputFileType" id="outputFileType" class="hidden" />
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                <span class="glyphicon glyphicon-ok hidden uploadFileSelected"></span>
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                <span class="glyphicon glyphicon-remove hidden uploadFileSelected"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                @Html.DropDownListFor(x => this.Model.SelectedFormatType, this.Model.AvailableFormatTypes, new { id = "availableFormatTypes", @class = "form-control" })
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                <span class="glyphicon glyphicon-ok hidden" id="outputFormatSelected"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                <button type="submit" disabled="disabled" id="submitFile" class="btn btn-warning btn-block form-control">Submit</button>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        var uploadFileButton = $('#uploadFile');
+        var chooseFileButton = $('#chooseFile');
+        var submitFileButton = $('#submitFile');
+        var removeFileButton = $('.glyphicon-remove');
+        var outputFileType = $('#outputFileType');
+        var availableFormatTypes = $('#availableFormatTypes');
+        var uploadFileSelected = $('.uploadFileSelected');
+        var outputFormatSelected = $('#outputFormatSelected');
+
+        var isFileUploaded = false;
+        var isFileOutputTypeSelected = false;
+
+        chooseFileButton.on('click', function () {
+            uploadFileButton.trigger("click");
+        })
+
+        uploadFileButton.on('change', function () {
+            show(uploadFileSelected);
+            chooseFileButton.text(uploadFileButton.val());
+            isFileUploaded = true;
+
+            shouldEnableSubmitButton();
+        })
+
+        availableFormatTypes.on('change', function () {
+            show(outputFormatSelected);
+            isFileOutputTypeSelected = true;
+
+            outputFileType.val(availableFormatTypes.val());
+            shouldEnableSubmitButton();
+        })
+
+        removeFileButton.on('click', function () {
+            uploadFileButton.replaceWith(uploadFileButton = uploadFileButton.clone(true));
+            chooseFileButton.text('Choose file');
+            hide(uploadFileSelected);
+            isFileUploaded = false;
+
+            shouldEnableSubmitButton();
+        })
+
+        function show(jQueryElement) {
+            jQueryElement.removeClass('hidden');
+        }
+
+        function hide(jQueryElement) {
+            jQueryElement.addClass('hidden');
+        }
+
+        function shouldEnableSubmitButton() {
+            if (isFileUploaded && isFileOutputTypeSelected) {
+                submitFileButton.removeAttr('disabled');
+            }
+            else {
+                submitFileButton.attr('disabled', 'disabled');
+            }
+        }
+
+        function enableSubmitFileButton() {
+            submitFileButton.prop('disabled', false);
+        }
+
+        function disableSubmitFileButton() {
+            submitFileButton.prop('disabled', true);
+        }
+    </script>
+}
